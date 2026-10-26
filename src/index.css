@@ -1,0 +1,80 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", sans-serif;
+
+  /* Text Accents */
+  --color-accent-heading: #355282;
+  --color-text-dark: #45556C;
+  --color-text-light: #62748E;
+  --color-accent-alert: #E21313;
+  --color-accent-action: #5773E3;
+  --color-accent-secondary: #5D8DB8;
+
+  /* UI Surfaces & Borders */
+  --color-surface-main: #FFFFFF;
+  --color-surface-head: #EAEAEA;
+  --color-surface-head-alert: #FFD0BD;
+  --color-surface-border: #CECECE;
+
+  /* Production Status Colors */
+  --color-stage-danger-bg: #FEF2F2;
+  --color-stage-danger-border: #FECACA;
+  --color-stage-danger-text: #E21313;
+
+  --color-stage-day-bg: #FFFBEB;
+  --color-stage-day-border: #FDE68A;
+
+  --color-stage-returns-bg: #EFF6FF;
+  --color-stage-returns-border: #BFDBFE;
+  --color-stage-returns-text: #355282;
+
+  /* Note Card Colors */
+  --color-note-green-bg: #D9F99D;
+  --color-note-green-border: #BEF264;
+  --color-note-pink-bg: #FBCFE8;
+  --color-note-pink-border: #F472B6;
+  --color-note-blue-bg: #BAE6FD;
+  --color-note-blue-border: #7DD3FC;
+  --color-note-yellow-bg: #FEF08A;
+  --color-note-yellow-border: #FDE047;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    min-width: 320px;
+    background-color: var(--color-slate-50);
+    color: var(--color-slate-950);
+    font-family: var(--font-sans);
+  }
+}
+
+.field {
+  min-height: 2.75rem;
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-slate-300);
+  background-color: white;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-slate-950);
+  outline: none;
+  font-size: 0.875rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.field:focus {
+  border-color: var(--color-blue-600);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-blue-600) 15%, transparent);
+}
+
+.form-label {
+  display: block;
+  color: var(--color-slate-700);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
