@@ -1,17 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import type { FormEvent } from "react";
-import {
-  onAuthStateChanged,
-  signOut,
-  updateEmail,
-  updatePassword,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from "firebase/auth";
-import type { User } from "firebase/auth";
-import { collection, onSnapshot } from "firebase/firestore";
-import { auth, db } from "./firebase";
-import { Login } from "./components/Login";
 import { DashboardPage } from "./components/DashboardPage";
 import { ThreadColourPage } from "./components/ThreadColourPage";
 import { ProductionPage } from "./components/ProductionPage";
@@ -243,7 +231,7 @@ export default function App() {
                 <div className="border-b border-surface-border/50 px-3 py-2.5">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-text-light">Logged in as</p>
                   <p className="mt-0.5 truncate text-xs font-bold text-text-dark">
-                    {user.email || "artroom@bluegum.com.au"}
+                    {user.email || "artroom@example.com"}
                   </p>
                 </div>
 
@@ -276,7 +264,7 @@ export default function App() {
                 </div>
                 <div className="border-t border-surface-border/50 px-3 py-2 text-center">
                   <p className="text-[10px] font-semibold text-text-light">
-                    Version 1.0.0
+                    Version 1.1.0
                   </p>
                 </div>
               </div>
@@ -355,7 +343,7 @@ export default function App() {
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
                       className="field text-text-dark placeholder:text-text-light"
-                      placeholder="artroom@bluegum.com.au"
+                      placeholder="artroom@example.com"
                     />
                   </div>
 
@@ -452,6 +440,7 @@ export default function App() {
           colors={colors}
           jobs={jobs}
           notes={notes}
+          tags={tags}
           onNavigate={setActiveTab}
           onOpenJob={openJobFromDashboard}
           onOpenNote={openNoteFromDashboard}

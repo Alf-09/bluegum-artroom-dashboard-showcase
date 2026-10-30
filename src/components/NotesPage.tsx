@@ -9,7 +9,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import type { Note, NoteColor } from "../types";
-import { Search, Plus, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 
 interface NoteDraft {
   id: string | null;
@@ -39,6 +39,7 @@ interface NotesPageProps {
 export function NotesPage({ notes, openNoteId, onNoteOpened }: NotesPageProps) {
   const [query, setQuery] = useState("");
   const [draft, setDraft] = useState<NoteDraft | null>(null);
+  const [viewingNote, setViewingNote] = useState<Note | null>(null);
 
   useEffect(() => {
     if (!openNoteId) return;
@@ -63,7 +64,24 @@ export function NotesPage({ notes, openNoteId, onNoteOpened }: NotesPageProps) {
   async function openNote(note: Note) {
     const viewedAt = Date.now();
     await updateDoc(doc(db, "notes", note.id), { viewedAt });
-    setDraft({ id: note.id, title: note.title, text: note.text, color: note.color });
+    setViewingNote(note);
+  }
+
+  async function handleDeleteFromView() {
+    if (!viewingNote) return;
+    await deleteDoc(doc(db, "notes", viewingNote.id));
+    setViewingNote(null);
+  }
+
+  function handleEditFromView() {
+    if (!viewingNote) return;
+    setDraft({
+      id: viewingNote.id,
+      title: viewingNote.title,
+      text: viewingNote.text,
+      color: viewingNote.color,
+    });
+    setViewingNote(null);
   }
 
   async function saveNote(event: FormEvent<HTMLFormElement>) {
@@ -114,7 +132,7 @@ export function NotesPage({ notes, openNoteId, onNoteOpened }: NotesPageProps) {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search keywords in all notes…"
+            placeholder="Search notes…"
             className="min-w-0 flex-1 bg-transparent text-sm font-medium text-text-dark outline-none placeholder:text-text-light"
           />
           {query && (
@@ -132,14 +150,13 @@ export function NotesPage({ notes, openNoteId, onNoteOpened }: NotesPageProps) {
           onClick={createNote}
           className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-accent-action px-6 text-sm font-bold text-white shadow-xs transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent-action focus:ring-offset-2"
         >
-          <Plus className="size-4" />
           New Note
         </button>
       </div>
 
-      {/* Sticky Notes Masonry Grid */}
+      {/* Sticky Notes Grid */}
       {visibleNotes.length > 0 ? (
-        <div className="columns-2 gap-3.5 sm:columns-4 sm:gap-5">
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 sm:gap-5">
           {visibleNotes.map((note) => {
             const palette = notePalette.find((c) => c.key === note.color) ?? notePalette[3];
             return (
@@ -147,9 +164,8 @@ export function NotesPage({ notes, openNoteId, onNoteOpened }: NotesPageProps) {
                 key={note.id}
                 type="button"
                 onClick={() => openNote(note)}
-                className={`mb-3.5 inline-block min-h-36 w-full break-inside-avoid border p-4 text-left shadow-xs transition hover:-translate-y-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-accent-action focus:ring-offset-2 sm:mb-5 sm:min-h-44 sm:p-6 ${palette.cardClass}`}
-              >
-                <span className="line-clamp-2 text-base font-bold leading-snug text-text-dark sm:text-xl">
+                className={`flex min-h-44 w-full flex-col border p-4 text-left shadow-xs transition hover:-translate-y-1 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-accent-action focus:ring-offset-2 sm:min-h-52 sm:p-6 ${palette.cardClass}`}
+              >                <span className="line-clamp-2 text-base font-bold leading-snug text-text-dark sm:text-xl">
                   {note.title}
                 </span>
                 {note.text && (
@@ -170,7 +186,73 @@ export function NotesPage({ notes, openNoteId, onNoteOpened }: NotesPageProps) {
         </div>
       )}
 
-      {/* Note Modal */}
+      {/* View Note Modal (Read-Only) */}
+      {viewingNote && (() => {
+        const viewPalette = notePalette.find((c) => c.key === viewingNote.color) ?? notePalette[3];
+        const formattedDate = new Date(viewingNote.createdAt).toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+
+        return (
+          <div
+            className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4"
+            onMouseDown={() => setViewingNote(null)}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              className={`w-full max-w-2xl overflow-hidden rounded-2xl border shadow-2xl ${viewPalette.cardClass}`}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between border-b border-black/10 px-6 py-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-text-dark/70">
+                  {formattedDate}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setViewingNote(null)}
+                  aria-label="Close note"
+                  className="grid size-8 place-items-center rounded-lg text-text-dark/70 transition hover:bg-black/5 hover:text-text-dark"
+                >
+                  <X className="size-5" />
+                </button>
+              </div>
+
+              <div className="max-h-[70vh] overflow-y-auto p-6 sm:p-8">
+                <h2 className="text-2xl font-bold tracking-tight text-text-dark">
+                  {viewingNote.title}
+                </h2>
+
+                <div className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-text-dark sm:text-base">
+                  {viewingNote.text || <span className="italic opacity-60">No additional content.</span>}
+                </div>
+              </div>
+
+              <div className="flex justify-between border-t border-black/10 px-6 py-4">
+                <button
+                  type="button"
+                  onClick={handleDeleteFromView}
+                  className="rounded-xl border border-stage-danger-border bg-surface-main px-5 py-2.5 text-sm font-bold text-accent-alert transition hover:bg-stage-danger-bg"
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEditFromView}
+                  className="flex items-center gap-2 rounded-xl bg-accent-action px-6 py-2.5 text-sm font-bold text-white shadow-xs transition hover:opacity-90"
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Note Modal (Create & Edit) */}
       {draft && (
         <div
           className="fixed inset-0 z-50 grid place-items-center bg-slate-950/40 p-4"
@@ -186,10 +268,10 @@ export function NotesPage({ notes, openNoteId, onNoteOpened }: NotesPageProps) {
             <div className="flex items-center justify-between border-b border-surface-border px-6 py-5 sm:px-8">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-accent-action">
-                  {draft.id === null ? "NEW NOTE" : "EDIT NOTE"}
+                  Sticky Note
                 </p>
                 <h2 className="mt-1 text-xl font-bold text-text-dark">
-                  {draft.id === null ? "Create a note" : "Edit your note"}
+                  {draft.id === null ? "Create Note" : "Edit Note"}
                 </h2>
               </div>
               <button
@@ -272,13 +354,6 @@ export function NotesPage({ notes, openNoteId, onNoteOpened }: NotesPageProps) {
                 )}
               </div>
               <div className="flex flex-col-reverse gap-2 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() => setDraft(null)}
-                  className="rounded-xl border border-surface-border bg-surface-main px-5 py-2.5 text-sm font-bold text-text-dark hover:bg-surface-head"
-                >
-                  Close
-                </button>
                 <button
                   type="submit"
                   className="rounded-xl bg-accent-action px-6 py-2.5 text-sm font-bold text-white hover:opacity-90"

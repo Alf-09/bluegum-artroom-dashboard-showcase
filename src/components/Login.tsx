@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "../firebase";
-import { Lock, ArrowLeft, MailCheck } from "lucide-react";
+import { ArrowLeft, MailCheck } from "lucide-react";
 
 export function Login() {
   const [email, setEmail] = useState("");

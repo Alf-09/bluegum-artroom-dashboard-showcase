@@ -90,7 +90,7 @@ export function ArchivePage({ jobs }: ArchivePageProps) {
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-accent-heading sm:text-4xl">Archive</h1>
         <p className="mt-2 text-sm text-text-light">
-          Completed studio production jobs. Jobs are automatically cleared after 9 months.
+          Completed production. Jobs are automatically cleared after 9 months.
         </p>
       </div>
 
@@ -102,7 +102,7 @@ export function ArchivePage({ jobs }: ArchivePageProps) {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search archived jobs by number, customer, keyword…"
+            placeholder="Find archived production"
             className="min-w-0 flex-1 bg-transparent text-sm font-medium text-text-dark outline-none placeholder:text-text-light"
           />
           {query && (
@@ -124,7 +124,6 @@ export function ArchivePage({ jobs }: ArchivePageProps) {
           [
             ["jobNo", "Job Number"],
             ["customer", "Customer"],
-            ["job", "Description"],
             ["completedAt", "Date completed"],
           ] as const
         ).map(([key, label]) => {
@@ -154,10 +153,10 @@ export function ArchivePage({ jobs }: ArchivePageProps) {
       {/* Archived Jobs Table */}
       <div className="overflow-hidden rounded-2xl border border-surface-border bg-surface-main shadow-xs">
         <div className="grid grid-cols-[1fr_3fr_3fr_1fr] border-b border-surface-border bg-surface-head px-6 py-3 text-xs font-bold uppercase tracking-wider text-text-light">
-          <span>Job No.</span>
+          <span>Job</span>
           <span>Customer</span>
           <span>Description</span>
-          <span>Date completed</span>
+          <span>Completed</span>
         </div>
         <div className="divide-y divide-surface-border/40">
           {archivedJobs.map((j) => (
